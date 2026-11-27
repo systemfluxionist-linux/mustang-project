@@ -3,9 +3,9 @@ import { OrbitControls, ContactShadows } from '@react-three/drei';
 export function Scene({ children }) {
   return (
     <>
-      <color attach="background" args={['#0c0d0f']} />
-      <hemisphereLight args={['#d9e6ff', '#1a1714', 0.6]} />
-      <ambientLight intensity={0.35} />
+      <color attach="background" args={['#e9edf2']} />
+      <hemisphereLight args={['#ffffff', '#aeb6c2', 0.85]} />
+      <ambientLight intensity={0.5} />
       <directionalLight
         position={[6, 9, 6]}
         intensity={2.1}
@@ -21,9 +21,9 @@ export function Scene({ children }) {
       <directionalLight position={[2, 3, -8]} intensity={0.55} />
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
         <planeGeometry args={[60, 60]} />
-        <meshStandardMaterial color="#15171b" roughness={0.95} metalness={0.05} />
+        <meshStandardMaterial color="#d8dee6" roughness={0.9} metalness={0.02} />
       </mesh>
-      <ContactShadows position={[0, 0.01, 0]} opacity={0.55} scale={12} blur={2.4} far={4} resolution={512} color="#000000" />
+      <ContactShadows position={[0, 0.01, 0]} opacity={0.34} scale={12} blur={2.4} far={4} resolution={512} color="#000000" />
       <OrbitControls
         makeDefault
         target={[0, 0.72, 0]}

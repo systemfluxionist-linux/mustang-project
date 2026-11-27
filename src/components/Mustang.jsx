@@ -90,14 +90,14 @@ export function Mustang({ color = '#b01020' }) {
         <group key={`w-${x}-${side}`} position={[x, WHEEL_Y, z]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh geometry={wheelGeo} material={tireMat} castShadow />
           <mesh geometry={hubGeo} material={wheelFaceMat} position={[0, out, 0]} castShadow />
-          <mesh material={paintMat} position={[0, side * 0.19, 0]}>
+          <mesh material={paintMat} position={[0, side * 0.32, 0]}>
             <cylinderGeometry args={[0.075, 0.075, 0.02, 20]} />
           </mesh>
           {[0, 1, 2, 3, 4].map((i) => (
             <mesh
               key={i}
               material={wheelFaceMat}
-              position={[0, side * 0.18, 0]}
+              position={[0, side * 0.31, 0]}
               rotation={[0, (i * Math.PI * 2) / 5, 0]}
             >
               <boxGeometry args={[0.045, 0.02, 0.2]} />

@@ -1,488 +1,216 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 
-const createBodyProfile = () => {
-  const shape = new THREE.Shape();
-  const L = 4.6, H = 1.3, W = 1.7;
-  const hoodH = 0.95, cowlH = 1.15, roofH = 1.25, trunkH = 0.85;
-  const fenderR = 0.45, wheelR = 0.48;
+const L = 4.6;
+const W = 1.8;
+const WHEEL_X = 1.5;
+const WHEEL_Y = 0.5;
+const WHEEL_R = 0.45;
 
-  shape.moveTo(-L / 2, -0.05);
-  shape.lineTo(-L / 2 + 0.15, 0.15);
-  shape.lineTo(-L / 2 + 0.4, 0.15);
-  shape.lineTo(-L / 2 + 0.55, 0.35);
-  shape.lineTo(-L / 2 + 0.7, 0.35);
-  shape.lineTo(-L / 2 + 0.85, 0.15);
-  shape.lineTo(-L / 2 + 1.2, 0.15);
-  shape.lineTo(-L / 2 + 1.5, 0.35);
-
-  shape.bezierCurveTo(
-    -L / 2 + 1.8, 0.55,
-    -L / 2 + 2.0, 0.85,
-    -L / 2 + 2.1, 1.15
-  );
-  shape.lineTo(-L / 2 + 2.1, cowlH);
-  shape.lineTo(-L / 2 + 2.3, roofH);
-  shape.lineTo(L / 2 - 2.0, roofH);
-  shape.lineTo(L / 2 - 1.8, roofH - 0.1);
-  shape.lineTo(L / 2 - 1.5, trunkH);
-  shape.lineTo(L / 2 - 1.0, trunkH - 0.1);
-  shape.lineTo(L / 2 - 0.6, trunkH - 0.15);
-  shape.lineTo(L / 2 - 0.3, trunkH - 0.2);
-  shape.lineTo(L / 2, trunkH - 0.25);
-  shape.lineTo(L / 2, -0.05);
-  shape.lineTo(-L / 2, -0.05);
-
-  const frontArch = new THREE.Path();
-  frontArch.absarc(-L / 2 + 1.5, -0.05, wheelR + 0.05, 0, Math.PI * 2, false);
-  shape.holes.push(frontArch);
-
-  const rearArch = new THREE.Path();
-  rearArch.absarc(L / 2 - 1.5, -0.05, wheelR + 0.05, 0, Math.PI * 2, false);
-  shape.holes.push(rearArch);
-
-  return shape;
+const makeBodyProfile = () => {
+  const s = new THREE.Shape();
+  // rear lower -> tail -> trunk -> fastback -> roof -> windshield -> hood -> nose
+  s.moveTo(-L / 2, 0.25);
+  s.lineTo(-L / 2, 0.8);
+  s.quadraticCurveTo(-2.05, 0.9, -1.7, 0.92);
+  s.quadraticCurveTo(-0.7, 1.38, 0.25, 1.4);
+  s.lineTo(0.72, 0.98);
+  s.quadraticCurveTo(1.6, 0.92, 2.15, 0.9);
+  s.lineTo(L / 2, 0.78);
+  s.lineTo(L / 2, 0.25);
+  // front lower edge -> front wheel arch
+  s.lineTo(WHEEL_X + 0.5, 0.25);
+  s.quadraticCurveTo(WHEEL_X, 1.65, WHEEL_X - 0.5, 0.25);
+  // sill between arches
+  s.lineTo(-WHEEL_X + 0.5, 0.25);
+  // rear wheel arch -> rear lower edge
+  s.quadraticCurveTo(-WHEEL_X, 1.65, -WHEEL_X - 0.5, 0.25);
+  s.lineTo(-L / 2, 0.25);
+  s.closePath();
+  return s;
 };
 
-const createHoodCrease = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-1.0, 0);
-  shape.lineTo(-0.95, 0);
-  shape.lineTo(0.0, 0.08);
-  shape.lineTo(0.95, 0);
-  shape.lineTo(1.0, 0);
-  shape.lineTo(0.95, 0);
-  shape.lineTo(0.0, -0.08);
-  shape.lineTo(-0.95, 0);
-  return shape;
+const makeSideWindow = () => {
+  const s = new THREE.Shape();
+  s.moveTo(-1.3, 1.0);
+  s.lineTo(0.55, 1.0);
+  s.lineTo(0.3, 1.34);
+  s.lineTo(-0.85, 1.34);
+  s.closePath();
+  return s;
 };
 
-const createGrilleBars = () => {
-  const bars = [];
-  const count = 7;
-  const width = 1.4, height = 0.5;
-  for (let i = 0; i < count; i++) {
-    const y = -height / 2 + (i + 0.5) * (height / count);
-    bars.push({ y, width: width * 0.95, height: height / count * 0.7 });
-  }
-  return bars;
+const makePony = () => {
+  const s = new THREE.Shape();
+  s.absarc(0, 0, 0.09, 0, Math.PI * 2, false);
+  return s;
 };
 
-const createPonyEmblem = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.15, -0.05);
-  shape.bezierCurveTo(-0.15, 0.08, -0.05, 0.12, 0.0, 0.1);
-  shape.bezierCurveTo(0.05, 0.12, 0.15, 0.08, 0.15, -0.05);
-  shape.bezierCurveTo(0.15, -0.15, 0.05, -0.18, 0.0, -0.15);
-  shape.bezierCurveTo(-0.05, -0.18, -0.15, -0.15, -0.15, -0.05);
-  return shape;
-};
-
-const createHeadlight = () => {
-  const shape = new THREE.Shape();
-  shape.absarc(0, 0, 0.18, 0, Math.PI * 2);
-  return shape;
-};
-
-const createTaillight = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.12, -0.15);
-  shape.lineTo(0.12, -0.15);
-  shape.lineTo(0.1, 0.15);
-  shape.lineTo(-0.1, 0.15);
-  return shape;
-};
-
-const createDoorSeam = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.01, -0.4);
-  shape.lineTo(0.01, -0.4);
-  shape.lineTo(0.01, 0.4);
-  shape.lineTo(-0.01, 0.4);
-  return shape;
-};
-
-const createSideStrip = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-1.6, 0);
-  shape.lineTo(1.6, 0);
-  shape.lineTo(1.6, 0.04);
-  shape.lineTo(-1.6, 0.04);
-  return shape;
-};
-
-const createDoorHandle = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.08, -0.02);
-  shape.lineTo(0.08, -0.02);
-  shape.lineTo(0.08, 0.02);
-  shape.lineTo(-0.08, 0.02);
-  return shape;
-};
-
-const createExhaustTip = () => {
-  const shape = new THREE.Shape();
-  shape.absarc(0, 0, 0.045, 0, Math.PI * 2);
-  return shape;
-};
-
-const createBumper = (length, height, depth) => {
-  const shape = new THREE.Shape();
-  const r = height / 2;
-  shape.moveTo(-length / 2, 0);
-  shape.lineTo(-length / 2 + r, 0);
-  shape.quadraticCurveTo(-length / 2, 0, -length / 2, r);
-  shape.lineTo(-length / 2, height - r);
-  shape.quadraticCurveTo(-length / 2, height, -length / 2 + r, height);
-  shape.lineTo(length / 2 - r, height);
-  shape.quadraticCurveTo(length / 2, height, length / 2, height - r);
-  shape.lineTo(length / 2, r);
-  shape.quadraticCurveTo(length / 2, 0, length / 2 - r, 0);
-  shape.lineTo(-length / 2, 0);
-  return shape;
-};
-
-const createFender = () => {
-  const shape = new THREE.Shape();
-  const w = 0.7, h = 0.55;
-  shape.moveTo(-w / 2, 0);
-  shape.lineTo(-w / 2 + 0.1, 0);
-  shape.quadraticCurveTo(-w / 2, 0, -w / 2, 0.1);
-  shape.lineTo(-w / 2, h - 0.1);
-  shape.quadraticCurveTo(-w / 2, h, -w / 2 + 0.1, h);
-  shape.lineTo(w / 2 - 0.1, h);
-  shape.quadraticCurveTo(w / 2, h, w / 2, h - 0.1);
-  shape.lineTo(w / 2, 0.1);
-  shape.quadraticCurveTo(w / 2, 0, w / 2 - 0.1, 0);
-  shape.lineTo(-w / 2, 0);
-  return shape;
-};
-
-const createWindshield = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.7, -0.1);
-  shape.lineTo(0.7, -0.1);
-  shape.lineTo(0.65, 0.55);
-  shape.lineTo(-0.65, 0.55);
-  return shape;
-};
-
-const createSideWindow = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.05, -0.05);
-  shape.lineTo(1.3, -0.05);
-  shape.lineTo(1.15, 0.45);
-  shape.lineTo(-0.05, 0.45);
-  return shape;
-};
-
-const createRearWindow = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.65, -0.1);
-  shape.lineTo(0.65, -0.1);
-  shape.lineTo(0.5, 0.4);
-  shape.lineTo(-0.5, 0.4);
-  return shape;
-};
-
-const createTrunkDeck = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-0.8, -0.1);
-  shape.lineTo(0.8, -0.1);
-  shape.lineTo(0.7, 0.05);
-  shape.lineTo(-0.7, 0.05);
-  return shape;
-};
-
-const createHood = () => {
-  const shape = new THREE.Shape();
-  shape.moveTo(-1.1, -0.05);
-  shape.lineTo(1.1, -0.05);
-  shape.lineTo(1.0, 0.5);
-  shape.lineTo(-1.0, 0.5);
-  return shape;
-};
-
-const Mustang = () => {
-  const L = 4.6, W = 1.7, H = 1.3;
-  const wheelR = 0.48, wheelW = 0.3;
-  const wheelBase = 2.7;
-  const frontAxle = -L / 2 + 1.5;
-  const rearAxle = L / 2 - 1.5;
-
-  const bodyProfile = useMemo(() => createBodyProfile(), []);
+export function Mustang() {
   const bodyGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(bodyProfile, { depth: W, bevelEnabled: true, bevelThickness: 0.03, bevelSize: 0.03, bevelSegments: 4 }),
-    [bodyProfile]
-  );
-
-  const hoodCreaseGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createHoodCrease(), { depth: 0.04, bevelEnabled: true, bevelThickness: 0.005, bevelSize: 0.005, bevelSegments: 2 }),
+    () => new THREE.ExtrudeGeometry(makeBodyProfile(), {
+      depth: W,
+      bevelEnabled: true,
+      bevelThickness: 0.025,
+      bevelSize: 0.025,
+      bevelSegments: 3,
+      curveSegments: 16,
+    }),
     []
   );
-
-  const grilleBarGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(new THREE.Shape().moveTo(-0.7, -0.03).lineTo(0.7, -0.03).lineTo(0.7, 0.03).lineTo(-0.7, 0.03), { depth: 0.02 }),
+  const windowGeo = useMemo(
+    () => new THREE.ExtrudeGeometry(makeSideWindow(), { depth: 0.02, bevelEnabled: false }),
     []
   );
-
   const ponyGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createPonyEmblem(), { depth: 0.03, bevelEnabled: true, bevelThickness: 0.005, bevelSize: 0.005, bevelSegments: 2 }),
+    () => new THREE.ExtrudeGeometry(makePony(), { depth: 0.02, bevelEnabled: false }),
     []
   );
-
-  const headlightGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createHeadlight(), { depth: 0.08, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 3 }),
+  const wheelGeo = useMemo(() => new THREE.CylinderGeometry(WHEEL_R, WHEEL_R, 0.28, 32), []);
+  const hubGeo = useMemo(() => new THREE.CylinderGeometry(0.27, 0.27, 0.3, 32), []);
+  const archGeo = useMemo(
+    () => new THREE.TorusGeometry(0.53, 0.045, 8, 24, Math.PI),
     []
   );
+  const headlightGeo = useMemo(() => new THREE.CylinderGeometry(0.16, 0.16, 0.08, 24), []);
+  const exhaustGeo = useMemo(() => new THREE.CylinderGeometry(0.07, 0.07, 0.25, 16), []);
 
-  const taillightGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createTaillight(), { depth: 0.06, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }),
-    []
-  );
+  const bodyMat = useMemo(() => new THREE.MeshPhysicalMaterial({
+    color: 0xb01020, metalness: 0.25, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.12,
+  }), []);
+  const chromeMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: 0xe8e8ec, metalness: 0.95, roughness: 0.15,
+  }), []);
+  const darkMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: 0x141414, metalness: 0.5, roughness: 0.5,
+  }), []);
+  const tireMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: 0x0a0a0a, roughness: 0.95,
+  }), []);
+  const glassMat = useMemo(() => new THREE.MeshPhysicalMaterial({
+    color: 0x26384a, metalness: 0.1, roughness: 0.08, transparent: true, opacity: 0.55,
+  }), []);
+  const lightMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: 0xfff6d0, emissive: 0xfff0b0, emissiveIntensity: 0.6, roughness: 0.1,
+  }), []);
+  const tailMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: 0xcc1111, emissive: 0xaa0000, emissiveIntensity: 0.5, roughness: 0.2,
+  }), []);
 
-  const doorSeamGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createDoorSeam(), { depth: 0.01 }),
-    []
-  );
-
-  const sideStripGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createSideStrip(), { depth: 0.015 }),
-    []
-  );
-
-  const doorHandleGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createDoorHandle(), { depth: 0.03 }),
-    []
-  );
-
-  const exhaustGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createExhaustTip(), { depth: 0.15 }),
-    []
-  );
-
-  const frontBumperGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createBumper(1.8, 0.18, 0.08), { depth: 0.12, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }),
-    []
-  );
-
-  const rearBumperGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createBumper(1.6, 0.15, 0.08), { depth: 0.12, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }),
-    []
-  );
-
-  const fenderGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createFender(), { depth: 0.15, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 }),
-    []
-  );
-
-  const windshieldGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createWindshield(), { depth: 0.02 }),
-    []
-  );
-
-  const sideWindowGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createSideWindow(), { depth: 0.02 }),
-    []
-  );
-
-  const rearWindowGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createRearWindow(), { depth: 0.02 }),
-    []
-  );
-
-  const trunkDeckGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createTrunkDeck(), { depth: 0.02, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 2 }),
-    []
-  );
-
-  const hoodGeo = useMemo(
-    () => new THREE.ExtrudeGeometry(createHood(), { depth: W * 0.95, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 }),
-    []
-  );
-
-  const tireGeo = useMemo(
-    () => new THREE.CylinderGeometry(wheelR, wheelR, wheelW, 32),
-    [wheelR, wheelW]
-  );
-
-  const hubcapGeo = useMemo(
-    () => new THREE.CylinderGeometry(wheelR * 0.55, wheelR * 0.55, wheelW * 0.1, 32),
-    [wheelR, wheelW]
-  );
-
-  const hubcapSpokeGeo = useMemo(
-    () => new THREE.BoxGeometry(0.015, wheelR * 0.5, wheelW * 0.12),
-    [wheelR, wheelW]
-  );
-
-  const bodyMat = useMemo(
-    () => new THREE.MeshPhysicalMaterial({
-      color: 0x8b0000,
-      roughness: 0.35,
-      metalness: 0.1,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.1,
-      reflectivity: 1.0,
-    }),
-    []
-  );
-
-  const chromeMat = useMemo(
-    () => new THREE.MeshPhysicalMaterial({
-      color: 0xdddddd,
-      roughness: 0.08,
-      metalness: 1.0,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
-    }),
-    []
-  );
-
-  const glassMat = useMemo(
-    () => new THREE.MeshPhysicalMaterial({
-      color: 0x1a2a3a,
-      roughness: 0.05,
-      metalness: 0.0,
-      transparent: true,
-      opacity: 0.35,
-      transmission: 0.8,
-      thickness: 0.02,
-      ior: 1.5,
-    }),
-    []
-  );
-
-  const tireMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: 0x080808, roughness: 0.9 }),
-    []
-  );
-
-  const darkChromeMat = useMemo(
-    () => new THREE.MeshPhysicalMaterial({
-      color: 0x333333,
-      roughness: 0.3,
-      metalness: 0.8,
-    }),
-    []
-  );
-
-  const headlightGlassMat = useMemo(
-    () => new THREE.MeshPhysicalMaterial({
-      color: 0xffffee,
-      roughness: 0.02,
-      metalness: 0.0,
-      transparent: true,
-      opacity: 0.9,
-      transmission: 0.95,
-      thickness: 0.08,
-      ior: 1.5,
-      emissive: 0xffffee,
-      emissiveIntensity: 0.15,
-    }),
-    []
-  );
-
-  const taillightGlassMat = useMemo(
-    () => new THREE.MeshPhysicalMaterial({
-      color: 0xcc0000,
-      roughness: 0.05,
-      metalness: 0.0,
-      transparent: true,
-      opacity: 0.85,
-      transmission: 0.7,
-      thickness: 0.06,
-      ior: 1.5,
-      emissive: 0xcc0000,
-      emissiveIntensity: 0.3,
-    }),
-    []
-  );
+  const wheels = [];
+  for (const x of [WHEEL_X, -WHEEL_X]) {
+    for (const side of [-1, 1]) {
+      const z = side * (W / 2 - 0.02);
+      wheels.push(
+        <group key={`${x}-${side}`} position={[x, WHEEL_Y, z]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh geometry={wheelGeo} material={tireMat} castShadow />
+          <mesh geometry={hubGeo} material={chromeMat} position={[0, 0, side * 0.02]} castShadow />
+          <mesh geometry={hubGeo} material={chromeMat} position={[0, 0, side * 0.04]} scale={[0.45, 1, 0.45]} />
+        </group>
+      );
+    }
+  }
 
   return (
-    <group>
-      <mesh geometry={bodyGeo} material={bodyMat} position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={hoodGeo} material={bodyMat} position={[0, 0.95, 0]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={hoodCreaseGeo} material={bodyMat} position={[0, 1.0, 0.02]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
+    <group position={[0, 0, 0]} rotation={[0, 0, 0]}>
+      {/* main body: profile in XY, extruded through Z and centered */}
+      <mesh geometry={bodyGeo} material={bodyMat} position={[0, 0, -W / 2]} castShadow receiveShadow />
 
-      <mesh geometry={windshieldGeo} material={glassMat} position={[0, 1.15, W / 2 - 0.01]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={windshieldGeo} material={glassMat} position={[0, 1.15, -W / 2 + 0.01]} rotation={[-Math.PI / 2, Math.PI, 0]} castShadow receiveShadow />
+      {/* wheel arch trim */}
+      {[WHEEL_X, -WHEEL_X].map((x) => [-1, 1].map((side) => (
+        <mesh
+          key={`arch-${x}-${side}`}
+          geometry={archGeo}
+          material={chromeMat}
+          position={[x, WHEEL_Y, side * (W / 2 + 0.03)]}
+        />
+      )))}
 
-      <mesh geometry={sideWindowGeo} material={glassMat} position={[-1.2, 1.15, W / 2 - 0.01]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={sideWindowGeo} material={glassMat} position={[1.2, 1.15, -W / 2 + 0.01]} rotation={[-Math.PI / 2, Math.PI, 0]} castShadow receiveShadow />
-      <mesh geometry={rearWindowGeo} material={glassMat} position={[1.85, 1.15, W / 2 - 0.01]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={rearWindowGeo} material={glassMat} position={[1.85, 1.15, -W / 2 + 0.01]} rotation={[-Math.PI / 2, Math.PI, 0]} castShadow receiveShadow />
+      {/* hood crease */}
+      <mesh material={chromeMat} position={[1.45, 0.94, 0]}>
+        <boxGeometry args={[1.3, 0.015, 0.03]} />
+      </mesh>
 
-      <mesh geometry={trunkDeckGeo} material={bodyMat} position={[2.2, 0.85, W / 2 - 0.01]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={trunkDeckGeo} material={bodyMat} position={[2.2, 0.85, -W / 2 + 0.01]} rotation={[-Math.PI / 2, Math.PI, 0]} castShadow receiveShadow />
+      {/* windshield and side glass */}
+      <mesh material={glassMat} position={[0.47, 1.18, 0]} rotation={[0, 0, 0.82]}>
+        <boxGeometry args={[0.05, 0.62, 1.5]} />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <mesh
+          key={`window-${side}`}
+          geometry={windowGeo}
+          material={glassMat}
+          position={[0, 0, side > 0 ? W / 2 + 0.01 : -W / 2 - 0.03]}
+        />
+      ))}
 
-      <mesh geometry={doorSeamGeo} material={darkChromeMat} position={[-1.15, 0.5, W / 2 + 0.01]} rotation={[0, 0, 0]} />
-      <mesh geometry={doorSeamGeo} material={darkChromeMat} position={[1.15, 0.5, -W / 2 - 0.01]} rotation={[0, Math.PI, 0]} />
-      <mesh geometry={doorSeamGeo} material={darkChromeMat} position={[-1.15, 0.5, -W / 2 - 0.01]} rotation={[0, Math.PI, 0]} />
-      <mesh geometry={doorSeamGeo} material={darkChromeMat} position={[1.15, 0.5, W / 2 + 0.01]} rotation={[0, 0, 0]} />
+      {/* door seam, side strip, handles */}
+      {[-1, 1].map((side) => {
+        const z = side * (W / 2 + 0.035);
+        return (
+          <group key={`side-${side}`}>
+            <mesh material={darkMat} position={[-0.12, 0.66, z]}>
+              <boxGeometry args={[0.02, 0.68, 0.02]} />
+            </mesh>
+            <mesh material={chromeMat} position={[0, 0.52, z]}>
+              <boxGeometry args={[3.2, 0.05, 0.02]} />
+            </mesh>
+            <mesh material={chromeMat} position={[0.25, 0.78, z]}>
+              <boxGeometry args={[0.2, 0.05, 0.03]} />
+            </mesh>
+          </group>
+        );
+      })}
 
-      <mesh geometry={sideStripGeo} material={chromeMat} position={[-0.1, 0.2, W / 2 + 0.01]} rotation={[0, 0, 0]} />
-      <mesh geometry={sideStripGeo} material={chromeMat} position={[0.1, 0.2, -W / 2 - 0.01]} rotation={[0, Math.PI, 0]} />
-
-      <mesh geometry={doorHandleGeo} material={chromeMat} position={[-1.0, 0.4, W / 2 + 0.02]} rotation={[0, 0, 0]} />
-      <mesh geometry={doorHandleGeo} material={chromeMat} position={[1.0, 0.4, -W / 2 - 0.02]} rotation={[0, Math.PI, 0]} />
-      <mesh geometry={doorHandleGeo} material={chromeMat} position={[-1.0, 0.4, -W / 2 - 0.02]} rotation={[0, Math.PI, 0]} />
-      <mesh geometry={doorHandleGeo} material={chromeMat} position={[1.0, 0.4, W / 2 + 0.02]} rotation={[0, 0, 0]} />
-
-      <group position={[-L / 2 + 0.1, 0.3, 0]}>
-        <mesh geometry={frontBumperGeo} material={chromeMat} position={[0, 0, W / 2 + 0.06]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-        <mesh geometry={frontBumperGeo} material={chromeMat} position={[0, 0, -W / 2 - 0.06]} rotation={[-Math.PI / 2, Math.PI, 0]} castShadow receiveShadow />
-
-        {createGrilleBars().map((bar, i) => (
+      {/* front fascia */}
+      <group position={[L / 2 + 0.01, 0, 0]}>
+        <mesh material={darkMat} position={[0.02, 0.66, 0]}>
+          <boxGeometry args={[0.04, 0.42, 1.2]} />
+        </mesh>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <mesh key={`bar-${i}`} material={chromeMat} position={[0.05, 0.52 + i * 0.07, 0]}>
+            <boxGeometry args={[0.02, 0.022, 1.12]} />
+          </mesh>
+        ))}
+        <mesh geometry={ponyGeo} material={chromeMat} position={[0.07, 0.66, 0]} rotation={[0, Math.PI / 2, 0]} />
+        {[-0.62, 0.62].map((z) => (
           <mesh
-            key={i}
-            geometry={grilleBarGeo}
-            material={chromeMat}
-            position={[0, bar.y + 0.3, W / 2 + 0.12]}
-            rotation={[-Math.PI / 2, 0, 0]}
+            key={`hl-${z}`}
+            geometry={headlightGeo}
+            material={lightMat}
+            position={[0.04, 0.78, z]}
+            rotation={[0, 0, Math.PI / 2]}
           />
         ))}
-
-        <mesh geometry={ponyGeo} material={chromeMat} position={[0, 0.3, W / 2 + 0.16]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-
-        <mesh geometry={headlightGeo} material={headlightGlassMat} position={[-0.65, 0.28, W / 2 + 0.14]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-        <mesh geometry={headlightGeo} material={headlightGlassMat} position={[0.65, 0.28, W / 2 + 0.14]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-        <mesh geometry={headlightGeo} material={headlightGlassMat} position={[-0.65, 0.28, -W / 2 - 0.14]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-        <mesh geometry={headlightGeo} material={headlightGlassMat} position={[0.65, 0.28, -W / 2 - 0.14]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
+        <mesh material={chromeMat} position={[0.08, 0.34, 0]}>
+          <boxGeometry args={[0.18, 0.15, 1.92]} />
+        </mesh>
       </group>
 
-      <group position={[L / 2 - 0.1, 0.25, 0]}>
-        <mesh geometry={rearBumperGeo} material={chromeMat} position={[0, 0, W / 2 + 0.06]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-        <mesh geometry={rearBumperGeo} material={chromeMat} position={[0, 0, -W / 2 - 0.06]} rotation={[-Math.PI / 2, Math.PI, 0]} castShadow receiveShadow />
-
-        <mesh geometry={taillightGeo} material={taillightGlassMat} position={[-0.55, 0.0, W / 2 + 0.12]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-        <mesh geometry={taillightGeo} material={taillightGlassMat} position={[0.55, 0.0, W / 2 + 0.12]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-        <mesh geometry={taillightGeo} material={taillightGlassMat} position={[-0.55, 0.0, -W / 2 - 0.12]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-        <mesh geometry={taillightGeo} material={taillightGlassMat} position={[0.55, 0.0, -W / 2 - 0.12]} rotation={[-Math.PI / 2, 0, 0]} castShadow />
-
-        <mesh geometry={exhaustGeo} material={chromeMat} position={[-0.3, -0.25, W / 2 + 0.16]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-        <mesh geometry={exhaustGeo} material={chromeMat} position={[-0.3, -0.25, -W / 2 - 0.16]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
+      {/* rear fascia */}
+      <group position={[-L / 2 - 0.01, 0, 0]}>
+        {[-0.62, 0.62].map((z) => (
+          <mesh key={`tl-${z}`} material={tailMat} position={[-0.03, 0.68, z]}>
+            <boxGeometry args={[0.04, 0.14, 0.32]} />
+          </mesh>
+        ))}
+        <mesh material={chromeMat} position={[-0.08, 0.34, 0]}>
+          <boxGeometry args={[0.18, 0.15, 1.9]} />
+        </mesh>
+        {[-0.45, 0.45].map((z) => (
+          <mesh
+            key={`ex-${z}`}
+            geometry={exhaustGeo}
+            material={chromeMat}
+            position={[-0.16, 0.22, z]}
+            rotation={[0, 0, Math.PI / 2]}
+          />
+        ))}
       </group>
 
-      <mesh geometry={fenderGeo} material={bodyMat} position={[frontAxle, 0.35, W / 2 + 0.08]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={fenderGeo} material={bodyMat} position={[frontAxle, 0.35, -W / 2 - 0.08]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={fenderGeo} material={bodyMat} position={[rearAxle, 0.35, W / 2 + 0.08]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-      <mesh geometry={fenderGeo} material={bodyMat} position={[rearAxle, 0.35, -W / 2 - 0.08]} rotation={[-Math.PI / 2, 0, 0]} castShadow receiveShadow />
-
-      {[frontAxle, rearAxle].map((axle, ai) =>
-        [-1, 1].map((side, si) => (
-          <group key={`${ai}-${si}`} position={[axle, -0.05, side * (W / 2 + 0.02)]} rotation={[Math.PI / 2, 0, 0]}>
-            <mesh geometry={tireGeo} material={tireMat} castShadow receiveShadow />
-            <mesh geometry={hubcapGeo} material={chromeMat} position={[0, 0, wheelW / 2 + 0.005]} castShadow receiveShadow />
-            <mesh geometry={hubcapSpokeGeo} material={chromeMat} position={[0, 0, wheelW / 2 + 0.015]} castShadow receiveShadow />
-            <mesh geometry={hubcapSpokeGeo} material={chromeMat} position={[0, 0, wheelW / 2 + 0.015]} rotation={[0, 0, Math.PI / 4]} castShadow receiveShadow />
-            <mesh geometry={hubcapSpokeGeo} material={chromeMat} position={[0, 0, wheelW / 2 + 0.015]} rotation={[0, 0, Math.PI / 2]} castShadow receiveShadow />
-            <mesh geometry={hubcapSpokeGeo} material={chromeMat} position={[0, 0, wheelW / 2 + 0.015]} rotation={[0, 0, 3 * Math.PI / 4]} castShadow receiveShadow />
-          </group>
-        ))
-      )}
+      {wheels}
     </group>
   );
-};
+}
 
-export { Mustang };
+export default Mustang;

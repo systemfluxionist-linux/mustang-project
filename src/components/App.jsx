@@ -4,7 +4,7 @@ import { Mustang } from './Mustang';
 
 export default function App() {
   return (
-    <Canvas camera={{ position: [0, 3, 8], fov: 45 }} shadows>
+    <Canvas camera={{ position: [7, 3, 8], fov: 35 }} shadows>
       <Scene>
         <Mustang />
       </Scene>

@@ -50,6 +50,7 @@ export default function App() {
         </div>
         <footer className="hint" aria-hidden="true">
           Drag to orbit · Scroll to zoom
+          <span className="credit">CC0 1960s fastback model · Grab3D</span>
         </footer>
       </div>
     </>

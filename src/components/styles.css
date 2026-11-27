@@ -165,9 +165,15 @@ canvas {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  line-height: 1;
+  line-height: 1.5;
   text-align: right;
   pointer-events: none;
+}
+
+.credit {
+  display: block;
+  font-size: 0.85em;
+  color: #5c5c5c;
 }
 
 @media (max-width: 640px) {

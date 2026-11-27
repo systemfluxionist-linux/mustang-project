@@ -27,14 +27,14 @@ export default function App() {
       </Canvas>
       <div className="overlay">
         <header className="top-bar" role="banner">
-          <span className="wordmark" aria-hidden="true">1960 / MUSTANG</span>
-          <span className="subwordmark">FASTBACK · 3D STUDY</span>
+          <span className="wordmark" aria-hidden="true">MUSTANG / GT</span>
+          <span className="subwordmark">2005 · 3D STUDY</span>
         </header>
         <main className="hero" role="main">
           <span className="kicker">THE ICON, REIMAGINED</span>
-          <h1 className="display">1960 MUSTANG</h1>
-          <p className="copy">A study in proportion, presence, and the poetry of steel.</p>
-          <div className="specs" aria-hidden="true">4.6 m · 2+2 · V8</div>
+          <h1 className="display">MUSTANG GT</h1>
+          <p className="copy">The pony car icon, rendered in real time. Choose a finish and explore every angle.</p>
+          <div className="specs" aria-hidden="true">4.7 m · 2+2 · V8</div>
         </main>
         <div className="swatches" role="group" aria-label="Paint colors">
           {PAINTS.map(({ hex, name }) => (
@@ -50,7 +50,7 @@ export default function App() {
         </div>
         <footer className="hint" aria-hidden="true">
           Drag to orbit · Scroll to zoom
-          <span className="credit">CC0 1960s fastback model · Grab3D</span>
+          <span className="credit">CC BY 4.0 model · Ricy</span>
         </footer>
       </div>
     </>

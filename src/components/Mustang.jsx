@@ -2,19 +2,20 @@ import { Suspense, useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-const MODEL = '/models/classic-fastback.glb';
+const MODEL = '/models/mustang-2005.glb';
 
 function Car({ color }) {
   const { scene } = useGLTF(MODEL);
 
   const model = useMemo(() => {
     const copy = scene.clone(true);
+    copy.scale.setScalar(1.3);
     copy.traverse((obj) => {
       if (!obj.isMesh) return;
       obj.castShadow = true;
       obj.receiveShadow = true;
-      const name = obj.material?.name || '';
-      if (name.includes('_body_pbr')) {
+      const name = obj.material?.name?.toLowerCase() || '';
+      if (name.includes('carpaint')) {
         obj.material = new THREE.MeshPhysicalMaterial({
           color,
           metalness: 0.35,
@@ -24,6 +25,9 @@ function Car({ color }) {
         });
       }
     });
+    const box = new THREE.Box3().setFromObject(copy);
+    const center = box.getCenter(new THREE.Vector3());
+    copy.position.set(-center.x, -box.min.y, -center.z);
     return copy;
   }, [scene, color]);
 

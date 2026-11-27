@@ -3,7 +3,7 @@
 React + React Three Fiber 3D Mustang configurator, built through a multi-agent Git worktree workflow.
 
 **Public repository:** https://github.com/systemfluxionist-linux/mustang-project  
-**Live branch:** `feat/mustang-gt` (PR #15, open at time of writing)  
+**Live branch:** `main` (PR #15 merged 2026-11-27)  
 **License note:** the car is a **2005 Ford Mustang GT** CC BY 4.0 model by Ricy. It is not a 1960 Mustang; the project started with that goal, but the only reliably downloadable licensed Mustang asset found was this one.
 
 ---
@@ -120,7 +120,7 @@ The `advanced-delegation` plugin was installed from the curated Hermes plugin ca
 - **#12** Redesign 1960 Mustang (detailed geometry + studio scene) — closed; visually incorrect.
 - **#13** Mustang showcase rebuild (v3) — closed; still stylized primitives.
 - **#14** Mustang v4: real CC0 1960s fastback GLB — closed; model was not actually a Mustang.
-- **#15** Mustang v5: real Ford Mustang GT model — open; current implementation.
+- **#15** Mustang v5: real Ford Mustang GT model — merged; current implementation.
 
 PRs #8/#9 conflicted because #11 already contained their files. Later redesign PRs were closed only after a replacement was built and verified.
 
@@ -255,4 +255,3 @@ Not verified:
 - Add a loading indicator while the GLB streams.
 - Code-split Three.js to reduce the initial bundle warning.
 - Add automated screenshot checks with Playwright.
-- Merge PR #15 into `main` after approval.

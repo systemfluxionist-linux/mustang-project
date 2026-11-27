@@ -11,12 +11,12 @@ function bodyProfile() {
   const s = new THREE.Shape();
   s.moveTo(-2.3, 0.25);
   s.lineTo(-2.3, 0.72);
-  s.quadraticCurveTo(-2.25, 0.86, -1.95, 0.9);
-  s.lineTo(-1.55, 0.94);
-  s.quadraticCurveTo(-1.2, 1.28, -0.85, 1.36);
-  s.lineTo(0.1, 1.4);
-  s.quadraticCurveTo(0.4, 1.32, 0.62, 0.98);
-  s.quadraticCurveTo(1.5, 0.94, 2.15, 0.9);
+  s.quadraticCurveTo(-2.25, 0.84, -1.9, 0.88);
+  s.lineTo(-1.8, 0.88);
+  s.quadraticCurveTo(-1.0, 1.16, -0.35, 1.25);
+  s.lineTo(0.15, 1.25);
+  s.quadraticCurveTo(0.36, 1.2, 0.55, 0.95);
+  s.quadraticCurveTo(1.5, 0.92, 2.15, 0.9);
   s.quadraticCurveTo(2.3, 0.88, 2.3, 0.72);
   s.lineTo(2.3, 0.25);
   s.lineTo(1.95, 0.25);
@@ -29,10 +29,10 @@ function bodyProfile() {
 
 function sideWindow() {
   const s = new THREE.Shape();
-  s.moveTo(-0.82, 1.0);
-  s.lineTo(0.5, 1.0);
-  s.lineTo(0.08, 1.34);
-  s.lineTo(-0.55, 1.34);
+  s.moveTo(-1.72, 0.92);
+  s.lineTo(0.46, 0.92);
+  s.lineTo(0.12, 1.2);
+  s.lineTo(-0.52, 1.2);
   s.closePath();
   return s;
 }
@@ -51,7 +51,7 @@ export function Mustang({ color = '#b01020' }) {
   }), []);
   const wheelGeo = useMemo(() => new THREE.CylinderGeometry(WHEEL_R, WHEEL_R, 0.26, 40), []);
   const hubGeo = useMemo(() => new THREE.CylinderGeometry(0.27, 0.27, 0.28, 40), []);
-  const archGeo = useMemo(() => new THREE.TorusGeometry(0.53, 0.05, 10, 32, Math.PI), []);
+  const archGeo = useMemo(() => new THREE.TorusGeometry(0.5, 0.028, 10, 32, Math.PI), []);
   const lampGeo = useMemo(() => new THREE.CylinderGeometry(0.17, 0.17, 0.07, 28), []);
   const crestGeo = useMemo(() => new THREE.TorusGeometry(0.08, 0.014, 8, 20), []);
 
@@ -63,6 +63,9 @@ export function Mustang({ color = '#b01020' }) {
   }), []);
   const darkMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#111318', metalness: 0.4, roughness: 0.45,
+  }), []);
+  const wheelFaceMat = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#e6e9ee', metalness: 0.15, roughness: 0.35,
   }), []);
   const tireMat = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#0b0b0d', roughness: 0.95,
@@ -86,15 +89,18 @@ export function Mustang({ color = '#b01020' }) {
       wheels.push(
         <group key={`w-${x}-${side}`} position={[x, WHEEL_Y, z]} rotation={[Math.PI / 2, 0, 0]}>
           <mesh geometry={wheelGeo} material={tireMat} castShadow />
-          <mesh geometry={hubGeo} material={chromeMat} position={[0, 0, out]} castShadow />
+          <mesh geometry={hubGeo} material={wheelFaceMat} position={[0, out, 0]} castShadow />
+          <mesh material={paintMat} position={[0, side * 0.19, 0]}>
+            <cylinderGeometry args={[0.075, 0.075, 0.02, 20]} />
+          </mesh>
           {[0, 1, 2, 3, 4].map((i) => (
             <mesh
               key={i}
-              material={chromeMat}
-              position={[0, 0, side * 0.18]}
-              rotation={[0, 0, (i * Math.PI * 2) / 5]}
+              material={wheelFaceMat}
+              position={[0, side * 0.18, 0]}
+              rotation={[0, (i * Math.PI * 2) / 5, 0]}
             >
-              <boxGeometry args={[0.045, 0.2, 0.02]} />
+              <boxGeometry args={[0.045, 0.02, 0.2]} />
             </mesh>
           ))}
         </group>
@@ -115,11 +121,11 @@ export function Mustang({ color = '#b01020' }) {
         />
       )))}
 
-      <mesh material={glassMat} position={[0.37, 1.19, 0]} rotation={[0, 0, 0.89]}>
-        <boxGeometry args={[0.04, 0.68, 1.5]} />
+      <mesh material={glassMat} position={[0.35, 1.1, 0]} rotation={[0, 0, 0.93]}>
+        <boxGeometry args={[0.04, 0.52, 1.5]} />
       </mesh>
-      <mesh material={glassMat} position={[-1.08, 1.12, 0]} rotation={[0, 0, -0.72]}>
-        <boxGeometry args={[0.04, 0.56, 1.45]} />
+      <mesh material={glassMat} position={[-1.08, 1.06, 0]} rotation={[0, 0, 1.82]}>
+        <boxGeometry args={[0.04, 1.5, 1.45]} />
       </mesh>
       {[-1, 1].map((side) => (
         <mesh
